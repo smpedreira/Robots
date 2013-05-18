@@ -1,0 +1,8 @@
+# ignore eclipse configuration files
+.classpath
+.project
+.settings/
+
+robots/.classpath
+robots/.project
+robots/.settings/

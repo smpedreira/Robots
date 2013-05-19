@@ -1,5 +1,6 @@
 package org.researching.robots;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -81,6 +82,11 @@ public class ControllerTest {
         //Given
 	    int value = 5;
         given(in.nextInt()).willReturn(value);
+        try {
+            given(in.nextUnsignedInt()).willReturn(value);
+        } catch (IOException e) {
+           fail("it should not throw a exception");
+        }
         given(in.nextLine()).willReturn("");
 
         //When
@@ -88,7 +94,7 @@ public class ControllerTest {
 
         //Then
         verify(plat, Mockito.times(1)).setX(value);
-        verify(plat, Mockito.times(1)).setY(anyInt());
+        verify(plat, Mockito.times(1)).setY(value);
     }
 
 	@Test
@@ -106,6 +112,21 @@ public class ControllerTest {
         verify(robot, Mockito.times(1)).setPosY(value);
         verify(robot, Mockito.times(1)).setCardinalPoint(CardinalPoint.N);
 	}
+
+	@Test
+    public void initRobotWithWrongCoordinatesTest(){
+        //Given
+        given(in.nextInt()).willThrow(new RuntimeException());
+        given(in.nextLine()).willReturn("N");
+
+        //When
+        controller.initRobot();
+
+        //Then
+        verify(robot, Mockito.times(0)).setPosX(anyInt());
+        verify(robot, Mockito.times(0)).setPosY(anyInt());
+        verify(robot, Mockito.times(0)).setCardinalPoint(CardinalPoint.N);
+    }
 
 	@Test
     public void isContinue() {

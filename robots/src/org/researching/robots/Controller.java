@@ -16,7 +16,7 @@ public class Controller {
 		this.plat = plat;
 		this.robot = robot;
 		this.directions = directions;
-		this.in = in;
+		this.setIn(in);
 	}
 
 	public void start(){
@@ -34,9 +34,10 @@ public class Controller {
 	}
 
 	public boolean initDirections() {
+	    directions.clear();
 		System.out.println("Enter the orders. Ex.(MMRM)): ");
 		try{
-			String orders = in.nextLine();
+			String orders = getIn().nextLine();
 			orders = orders.replace(" ", "").toUpperCase();
 			
 			for(int i=1; i <= orders.length(); ++i){
@@ -58,32 +59,38 @@ public class Controller {
 	public boolean initRobot() {
 		try{
 			System.out.println("Enter coordinates and the cardinal point of the robot. Ex.(0 0 N)");
-  	  		int x = in.nextInt();
-  	  		int y = in.nextInt();
-  	  		String cardinal = in.nextLine();
-  	  		
+  	  		int x = getIn().nextInt();
+  	  		int y = getIn().nextInt();
   	  		robot.setPosX(x);
   	  		robot.setPosY(y);
-  	  		robot.setCardinalPoint(CardinalPoint.valueOf(cardinal.replace(" ","").toUpperCase()));
-  	  		
-  	  		return true;
 		}catch(RuntimeException e){
-			in.nextLine();
-    		System.out.println("coordinates of the robot are wrong.");
-    		if(isContinue()){
-    			System.out.println("");
-    			return initRobot();
-    		}else{
-    			return false;
-    		}
-    	}
-	}
+		    if(in.hasNext()) getIn().nextLine();
+            return manageInitRobotError();
+        }   
+        try{
+            String cardinal = getIn().nextLine();
+            robot.setCardinalPoint(CardinalPoint.valueOf(cardinal.replace(" ","").toUpperCase()));
+            return true;
+        }catch(RuntimeException e){
+            return manageInitRobotError();
+        }
+    }
+	
+	private boolean manageInitRobotError() {
+	    System.out.println("coordinates of the robot are wrong.");
+        if(isContinue()){
+            System.out.println("");
+            return initRobot();
+        }else{
+            return false;
+        }
+    }
 
 	public boolean initPlat() {
 		try{
 			System.out.println("Enter the upper-right coordinates of the plateau. (x,y)");
-  	  		int x = in.nextInt();
-  	  		int y = in.nextInt();
+  	  		int x = getIn().nextUnsignedInt();
+  	  		int y = getIn().nextUnsignedInt();
   	  	
   	  		System.out.println("x: "+x);
   	  		System.out.println("y: "+y);
@@ -93,7 +100,7 @@ public class Controller {
 
   	  		return true;
 		}catch(Exception e){
-			in.nextLine();
+		    if(in.hasNext()) getIn().nextLine();
     		System.out.println("upper-right coordinates are wrong.");
     		if(isContinue()){
     			System.out.println("");
@@ -106,7 +113,7 @@ public class Controller {
 
 	public boolean isContinue(){
 	    System.out.println("Do you want to continue and try it again.(y/n): ");
-        String resp = in.nextLine();
+        String resp = getIn().nextLine();
         return ("y".equalsIgnoreCase(resp) || "yes".equalsIgnoreCase(resp));
 	}
 
@@ -133,5 +140,13 @@ public class Controller {
 	public List<Direction> getDirections() {
 		return directions;
 	}
+
+    public void setIn(ReadSystem in) {
+        this.in = in;
+    }
+
+    public ReadSystem getIn() {
+        return in;
+    }
 
 }
